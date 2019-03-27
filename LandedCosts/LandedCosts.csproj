@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +35,9 @@
     <StartupObject>LandedCosts.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ConverterLib_x64">
+      <HintPath>..\..\Invoice Income Correction\Invoice Income Correction\bin\Debug\ConverterLib_x64.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,15 +50,44 @@
     <Reference Include="SAPBusinessOneSDK" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Form1.b1f">
+    <None Include="Forms\Currencies.b1f">
+      <FormCategory>SystemForm</FormCategory>
+    </None>
+    <None Include="Forms\Currencies.b1f__orig_srf">
+      <DependentUpon>Currencies.b1f</DependentUpon>
+    </None>
+    <None Include="Forms\LandedCosts.b1f">
       <FormCategory>UserForm</FormCategory>
     </None>
-    <Compile Include="Form1.b1f.cs">
-      <DependentUpon>Form1.b1f</DependentUpon>
+    <Compile Include="DiManager.cs" />
+    <Compile Include="Forms\Currencies.b1f.cs">
+      <DependentUpon>Currencies.b1f</DependentUpon>
     </Compile>
+    <Compile Include="Forms\LandedCosts.b1f.cs">
+      <DependentUpon>LandedCosts.b1f</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\LandedCostsSetup.b1f.cs">
+      <DependentUpon>LandedCostsSetup.b1f</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\TaxGroups.b1f.cs">
+      <DependentUpon>TaxGroups.b1f</DependentUpon>
+    </Compile>
+    <Compile Include="LandedCostsModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <None Include="Forms\LandedCostsSetup.b1f">
+      <FormCategory>SystemForm</FormCategory>
+    </None>
+    <None Include="Forms\LandedCostsSetup.b1f__orig_srf">
+      <DependentUpon>LandedCostsSetup.b1f</DependentUpon>
+    </None>
+    <None Include="Forms\TaxGroups.b1f">
+      <FormCategory>SystemForm</FormCategory>
+    </None>
+    <None Include="Forms\TaxGroups.b1f__orig_srf">
+      <DependentUpon>TaxGroups.b1f</DependentUpon>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

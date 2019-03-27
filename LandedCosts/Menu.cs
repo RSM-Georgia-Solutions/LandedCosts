@@ -13,6 +13,7 @@ namespace LandedCosts
             SAPbouiCOM.MenuItem oMenuItem = null;
 
             oMenus = Application.SBO_Application.Menus;
+            var x = oMenus.GetAsXML();
 
             SAPbouiCOM.MenuCreationParams oCreationPackage = null;
             oCreationPackage = ((SAPbouiCOM.MenuCreationParams)(Application.SBO_Application.CreateObject(SAPbouiCOM.BoCreatableObjectType.cot_MenuCreationParams)));
@@ -44,8 +45,8 @@ namespace LandedCosts
 
                 // Create s sub menu
                 oCreationPackage.Type = SAPbouiCOM.BoMenuType.mt_STRING;
-                oCreationPackage.UniqueID = "LandedCosts.Form1";
-                oCreationPackage.String = "Form1";
+                oCreationPackage.UniqueID = "LandedCosts.LandedCosts";
+                oCreationPackage.String = "LandedCosts";
                 oMenus.AddEx(oCreationPackage);
             }
             catch (Exception er)
@@ -60,9 +61,9 @@ namespace LandedCosts
 
             try
             {
-                if (pVal.BeforeAction && pVal.MenuUID == "LandedCosts.Form1")
+                if (pVal.BeforeAction && pVal.MenuUID == "LandedCosts.LandedCosts")
                 {
-                    Form1 activeForm = new Form1();
+                    LandedCosts activeForm = new LandedCosts();
                     activeForm.Show();
                 }
             }
