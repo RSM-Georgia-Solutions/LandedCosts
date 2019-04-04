@@ -69,9 +69,13 @@
     <Compile Include="Forms\LandedCostsSetup.b1f.cs">
       <DependentUpon>LandedCostsSetup.b1f</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ListOfBusinessPartners.b1f.cs">
+      <DependentUpon>ListOfBusinessPartners.b1f</DependentUpon>
+    </Compile>
     <Compile Include="Forms\TaxGroups.b1f.cs">
       <DependentUpon>TaxGroups.b1f</DependentUpon>
     </Compile>
+    <Compile Include="IChoseFromList.cs" />
     <Compile Include="LandedCostsModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Menu.cs" />
@@ -81,6 +85,9 @@
     </None>
     <None Include="Forms\LandedCostsSetup.b1f__orig_srf">
       <DependentUpon>LandedCostsSetup.b1f</DependentUpon>
+    </None>
+    <None Include="Forms\ListOfBusinessPartners.b1f">
+      <FormCategory>UserForm</FormCategory>
     </None>
     <None Include="Forms\TaxGroups.b1f">
       <FormCategory>SystemForm</FormCategory>
