@@ -46,7 +46,7 @@ namespace LandedCosts.Forms
 
         private void OnCustomInitialize()
         {
-            Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code' FROM OCRD WHERE OCRD.CardType = 'S' "));
+            Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code', DebPayAcct as 'Account' FROM OCRD WHERE OCRD.CardType = 'S' "));
             EditTextColumn oEditCol = (EditTextColumn)Grid0.Columns.Item("BP Code");
             oEditCol.LinkedObjectType = "2";
         }
@@ -72,7 +72,7 @@ namespace LandedCosts.Forms
 
         private void Button0_PressedAfter(object sboObject, SBOItemEventArg pVal)
         {
-            Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code' FROM OCRD WHERE (CardType = 'C' and CardName = N'" + EditText0.Value + "') or  (OCRD.CardType = 'C' and CardCode = N'" + EditText0.Value + "') "));
+            Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code', DebPayAcct as 'Account' FROM OCRD WHERE (OCRD.CardType = 'S' and CardName = N'" + EditText0.Value + "') or  (OCRD.CardType = 'S' and CardCode = N'" + EditText0.Value + "') "));
         }
 
         private void EditText0_KeyDownAfter(object sboObject, SBOItemEventArg pVal)
@@ -93,7 +93,7 @@ namespace LandedCosts.Forms
             }
             else
             {
-                Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code' FROM OCRD WHERE (CardName Like N'%" + EditText0.Value.Replace("'", "''") + "%') or (CardCode like N'%" + EditText0.Value.Replace("'", "''") + "%')"));
+                Grid0.DataTable.ExecuteQuery(DiManager.QueryHanaTransalte("SELECT CardName as 'BP Name', CardCode as 'BP Code', Balance, VatIdUnCmp as 'Unified Federal Tax ID', GroupCode as 'Group Code', DebPayAcct as 'Account' FROM OCRD WHERE (CardName Like N'%" + EditText0.Value.Replace("'", "''") + "%') or (CardCode like N'%" + EditText0.Value.Replace("'", "''") + "%') or (VatIdUnCmp like N'%" + EditText0.Value.Replace("'", "''") + "%') or (DebPayAcct like N'%" + EditText0.Value.Replace("'", "''") + "%')"));
                 Grid0.Rows.SelectedRows.Clear();
                 Grid0.Rows.SelectedRows.Add(0);
             }
@@ -106,7 +106,6 @@ namespace LandedCosts.Forms
             {
                 Grid0.Rows.SelectedRows.Add(pVal.Row);
             }
-
         }
     }
 }

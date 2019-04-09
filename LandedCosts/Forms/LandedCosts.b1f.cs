@@ -25,22 +25,25 @@ namespace LandedCosts
         /// </summary>
         public override void OnInitializeComponent()
         {
-            EditText0 = ((EditText)(GetItem("Item_0").Specific));
-            EditText0.ChooseFromListAfter += new _IEditTextEvents_ChooseFromListAfterEventHandler(EditText0_ChooseFromListAfter);
-            StaticText0 = ((StaticText)(GetItem("Item_1").Specific));
-            StaticText1 = ((StaticText)(GetItem("Item_2").Specific));
-            EditText1 = ((EditText)(GetItem("Item_3").Specific));
-            EditText1.ChooseFromListAfter += new _IEditTextEvents_ChooseFromListAfterEventHandler(EditText1_ChooseFromListAfter);
-            EditText2 = ((EditText)(GetItem("Item_4").Specific));
-            StaticText2 = ((StaticText)(GetItem("Item_5").Specific));
-            EditText3 = ((EditText)(GetItem("Item_6").Specific));
-            StaticText3 = ((StaticText)(GetItem("Item_7").Specific));
-            Grid0 = ((Grid)(GetItem("Item_8").Specific));
-            Grid0.DoubleClickAfter += new _IGridEvents_DoubleClickAfterEventHandler(Grid0_DoubleClickAfter);
-            Grid0.ClickAfter += new _IGridEvents_ClickAfterEventHandler(Grid0_ClickAfter);
-            Button0 = ((Button)(GetItem("Item_9").Specific));
-            Button0.PressedAfter += new _IButtonEvents_PressedAfterEventHandler(Button0_PressedAfter);
-            OnCustomInitialize();
+            this.EditText0 = ((SAPbouiCOM.EditText)(this.GetItem("Item_0").Specific));
+            this.EditText0.ChooseFromListAfter += new SAPbouiCOM._IEditTextEvents_ChooseFromListAfterEventHandler(this.EditText0_ChooseFromListAfter);
+            this.StaticText0 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_1").Specific));
+            this.StaticText1 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_2").Specific));
+            this.EditText1 = ((SAPbouiCOM.EditText)(this.GetItem("Item_3").Specific));
+            this.EditText1.ChooseFromListAfter += new SAPbouiCOM._IEditTextEvents_ChooseFromListAfterEventHandler(this.EditText1_ChooseFromListAfter);
+            this.EditText2 = ((SAPbouiCOM.EditText)(this.GetItem("Item_4").Specific));
+            this.StaticText2 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_5").Specific));
+            this.EditText3 = ((SAPbouiCOM.EditText)(this.GetItem("Item_6").Specific));
+            this.StaticText3 = ((SAPbouiCOM.StaticText)(this.GetItem("Item_7").Specific));
+            this.Grid0 = ((SAPbouiCOM.Grid)(this.GetItem("Item_8").Specific));
+            this.Grid0.DoubleClickAfter += new SAPbouiCOM._IGridEvents_DoubleClickAfterEventHandler(this.Grid0_DoubleClickAfter);
+            this.Grid0.ClickAfter += new SAPbouiCOM._IGridEvents_ClickAfterEventHandler(this.Grid0_ClickAfter);
+            this.Button0 = ((SAPbouiCOM.Button)(this.GetItem("Item_9").Specific));
+            this.Button0.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button0_PressedAfter);
+            this.EditText4 = ((SAPbouiCOM.EditText)(this.GetItem("Item_10").Specific));
+            this.Button1 = ((SAPbouiCOM.Button)(this.GetItem("Item_11").Specific));
+            this.Button1.PressedAfter += new SAPbouiCOM._IButtonEvents_PressedAfterEventHandler(this.Button1_PressedAfter);
+            this.OnCustomInitialize();
 
         }
 
@@ -61,6 +64,19 @@ namespace LandedCosts
             LandedCostsSetup.LandedCostsCode = FillLandedCostCode;
             Currencies.CurrencyCode = CurrencyCode;
             TaxGroups._taxCode = TaxCode;
+
+            StaticText0.Item.FontSize = 15;
+            StaticText0.Item.Height = 20;
+            StaticText1.Item.FontSize = 15;
+            StaticText1.Item.Height = 20;
+            StaticText2.Item.FontSize = 15;
+            StaticText2.Item.Height = 20;
+            StaticText3.Item.FontSize = 15;
+            StaticText3.Item.Height = 20;
+            Button0.Item.FontSize = 15;
+            Button0.Item.Height = 20;
+            Button1.Item.FontSize = 15;
+            Button1.Item.Height = 20;
 
             Grid0.DataTable.Columns.Add("დამატებითი ხარჯი", BoFieldsType.ft_AlphaNumeric);
             Grid0.DataTable.Columns.Add("დამატებითი ხარჯი სახელი", BoFieldsType.ft_AlphaNumeric);
@@ -303,7 +319,8 @@ namespace LandedCosts
                     InvoiceDocEntry = int.Parse(EditText1.Value),
                     PostingDate = DateTime.ParseExact(EditText2.Value, "yyyyMMdd", CultureInfo.InvariantCulture),
                     Number = EditText3.Value,
-                    VendorCode = EditText0.Value
+                    VendorCode = EditText0.Value,
+                    Comment = EditText4.Value
                 };
 
                 LandedCostsRowModel row = new LandedCostsRowModel
@@ -328,13 +345,10 @@ namespace LandedCosts
                 return;
             }
 
-            bool success = PostLandedCosts(modelsList);
-
-
+            bool success = PostLandedCosts(modelsList); 
 
             if (success)
             {
-
                 Application.SBO_Application.StatusBar.SetSystemMessage("წარმატება", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Success);
                 if (DiManager.Company.InTransaction)
                 {
@@ -359,6 +373,7 @@ namespace LandedCosts
                 var res = invoice.Update();
 
                 landedCost.Series = 23;
+                landedCost.Remarks = model.Comment;
 
 
                 try
@@ -401,18 +416,8 @@ namespace LandedCosts
                     landedCost.PostingDate = model.PostingDate;
                     LandedCostParams landedCostParams = svrLandedCost.AddLandedCost(landedCost);
                     landedCostParams.LandedCostNumber = landedCostParams.LandedCostNumber;
-                    var addedLandedCost = svrLandedCost.GetLandedCost(landedCostParams);
-                    //addedLandedCost.JournalRemarks = "gocha";
-                    //svrLandedCost.UpdateLandedCost(addedLandedCost);
-                    bool added = CreateInvoiceFromLandedCost(addedLandedCost, model);
-                    //if (!added)
-                    //{
-                    //    if (DiManager.Company.InTransaction)
-                    //    {
-                    //        DiManager.Company.EndTransaction(BoWfTransOpt.wf_RollBack);
-                    //    }
-                    //    return false;
-                    //}
+                    var addedLandedCost = svrLandedCost.GetLandedCost(landedCostParams); 
+                    bool added = CreateInvoiceFromLandedCost(addedLandedCost, model); 
 
                 }
                 catch (Exception e)
@@ -438,7 +443,7 @@ namespace LandedCosts
 
             invoice.DocCurrency = model.Rows[0].Currency;
             invoice.DocRate = model.Rows[0].Rate;
-            invoice.Comments = addedLandedCost.DocEntry.ToString();
+            invoice.Comments = $"Landed Cost : {addedLandedCost.DocEntry} Invoice(s) : {model.Comment} Declaration : {model.Number}";
 
             var costLine = addedLandedCost.LandedCost_CostLines.Item(0);
             var landedCostCode = costLine.LandedCostCode;
@@ -453,9 +458,7 @@ namespace LandedCosts
 
             recSet.DoQuery(DiManager.QueryHanaTransalte($"SELECT BplId FROM JDT1 WHERE transId =  '{jdtCode}'"));
             int branch = int.Parse(recSet.Fields.Item("BplId").Value.ToString());
-            invoice.BPL_IDAssignedToInvoice = branch;
-
-
+            invoice.BPL_IDAssignedToInvoice = branch; 
 
             //Invoice Lines
             invoice.Lines.SetCurrentLine(0);
@@ -469,5 +472,20 @@ namespace LandedCosts
                 true);
             return res == 0;
         }
+
+        private EditText EditText4;
+        private Button Button1;
+
+        private void Button1_PressedAfter(object sboObject, SBOItemEventArg pVal)
+        {
+            Application.SBO_Application.ActivateMenuItem("1540");
+            if (Application.SBO_Application.Forms.ActiveForm.Type != 392) return;
+            Form journalEntry = Application.SBO_Application.Forms.ActiveForm;
+            ((EditText) journalEntry.Items.Item("6").Specific).Value = EditText2.Value;
+            ((EditText) journalEntry.Items.Item("102").Specific).Value = EditText2.Value;
+            ((EditText) journalEntry.Items.Item("97").Specific).Value = EditText2.Value;
+            ((EditText) journalEntry.Items.Item("1000").Specific).Value = EditText2.Value;
+        } 
+ 
     }
 }

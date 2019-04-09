@@ -12,6 +12,7 @@ namespace LandedCosts
         public int InvoiceDocEntry { get; set; }
         public DateTime PostingDate { get; set; }
         public string Number { get; set; }
+        public string Comment { get; set; }
 
         public List<LandedCostsRowModel> Rows = new List<LandedCostsRowModel>();
     }
