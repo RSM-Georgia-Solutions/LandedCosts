@@ -10,6 +10,7 @@ namespace LandedCosts
     {
         public string VendorCode { get; set; }
         public int InvoiceDocEntry { get; set; }
+        public int InvoiceDocNum { get; set; }
         public DateTime PostingDate { get; set; }
         public string Number { get; set; }
         public string Comment { get; set; }

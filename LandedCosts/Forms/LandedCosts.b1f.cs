@@ -129,6 +129,7 @@ namespace LandedCosts
 
         private string _cardCode = string.Empty;
         private string _invoiceDocEntry = string.Empty;
+        private string _invoiceDocNum = string.Empty;
         private void EditText0_ChooseFromListAfter(object sboObject, SBOItemEventArg pVal)
         {
             Form listOfBps = Application.SBO_Application.Forms.ActiveForm;
@@ -168,7 +169,7 @@ namespace LandedCosts
         private void Form_ActivateAfter(SBOItemEventArg pVal)
         {
             EditText0.Value = _cardCode;
-            EditText1.Value = _invoiceDocEntry;
+            EditText1.Value = _invoiceDocEntry;         
         }
 
         private void EditText1_ChooseFromListAfter(object sboObject, SBOItemEventArg pVal)
@@ -184,7 +185,8 @@ namespace LandedCosts
                 int selectedRow = bpMatrix.GetNextSelectedRow();
                 try
                 {
-                    _invoiceDocEntry = ((EditText)bpMatrix.Columns.Item("DocEntry").Cells.Item(selectedRow).Specific).Value;
+                    _invoiceDocNum = ((EditText)bpMatrix.Columns.Item("DocNum").Cells.Item(selectedRow).Specific).Value;
+                    _invoiceDocEntry = ((EditText)bpMatrix.Columns.Item("V_0").Cells.Item(selectedRow).Specific).Value;//DocEntry
                 }
                 catch (Exception e)
                 {
@@ -316,7 +318,8 @@ namespace LandedCosts
             {
                 LandedCostsModel model = new LandedCostsModel
                 {
-                    InvoiceDocEntry = int.Parse(EditText1.Value),
+                    InvoiceDocNum = int.Parse(EditText1.Value),
+                    InvoiceDocEntry = int.Parse(_invoiceDocEntry),
                     PostingDate = DateTime.ParseExact(EditText2.Value, "yyyyMMdd", CultureInfo.InvariantCulture),
                     Number = EditText3.Value,
                     VendorCode = EditText0.Value,
@@ -522,7 +525,7 @@ namespace LandedCosts
             invoice.Lines.ItemDescription = landedCostName;
             invoice.Lines.VatGroup = model.Rows[0].VatGroup;
             invoice.Lines.AccountCode = landedCostAccount;
-            invoice.Lines.PriceAfterVAT =  model.Rows[0].Price;
+            invoice.Lines.PriceAfterVAT = model.Rows[0].Price;
 
             int res = invoice.Add();
             if (res == 0)
