@@ -63,9 +63,12 @@ namespace LandedCosts.Forms
         private void Button1_PressedAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
         {
             var selectedRow = Grid0.Rows.SelectedRows;
+            if (selectedRow.Count == 0)
+            {
+                return;
+            }
             var z = selectedRow.Item(0, BoOrderType.ot_RowOrder);
-            //_landed._bpCardCode = Grid0.DataTable.GetValue("BP Code", z).ToString();
-            //_landed._bpName = Grid0.DataTable.GetValue("BP Name", z).ToString();
+         
             _landed.AfterChooseFromList(Grid0.DataTable.GetValue("BP Code", z).ToString(), Grid0.DataTable.GetValue("BP Name", z).ToString());
             SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm.Close();
         }

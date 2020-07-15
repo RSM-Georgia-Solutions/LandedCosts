@@ -188,7 +188,7 @@ namespace LandedCosts
                 }
                 catch (Exception e)
                 {
- 
+
                 }
             }
         }
@@ -246,9 +246,9 @@ namespace LandedCosts
         {
             try
             {
-                CreateChoseFromList(Application.SBO_Application.Forms.ActiveForm, "2", "CFL11", "Item_0", "CardCode", "DT_1","CardType", BoConditionOperation.co_EQUAL, "S",  "CFL2");
+                CreateChoseFromList(Application.SBO_Application.Forms.ActiveForm, "2", "CFL11", "Item_0", "CardCode", "DT_1", "CardType", BoConditionOperation.co_EQUAL, "S", "CFL2");
 
-   
+
             }
             catch (Exception e)
             {
@@ -271,7 +271,7 @@ namespace LandedCosts
         /// <param name="cflAlias"></param>
         /// <param name="cflParamsId"></param>
         /// <param name="dataSourceId"></param>
-        private static void CreateChoseFromList(Form form, string objectType, string cflId, string editTextItem, string cflAlias,  string dataSourceId, string conditionField = "", BoConditionOperation equality = BoConditionOperation.co_EQUAL, string conditionValue = "", string cflParamsId = "")
+        private static void CreateChoseFromList(Form form, string objectType, string cflId, string editTextItem, string cflAlias, string dataSourceId, string conditionField = "", BoConditionOperation equality = BoConditionOperation.co_EQUAL, string conditionValue = "", string cflParamsId = "")
         {
             Form activeForm = form;
             ChooseFromListCollection oCfLs = activeForm.ChooseFromLists;
@@ -288,7 +288,7 @@ namespace LandedCosts
                 oCon.Alias = conditionField;
                 oCon.Operation = equality;
                 oCon.CondVal = conditionValue;
-                oCfl.SetConditions(oCons); 
+                oCfl.SetConditions(oCons);
             }
             oCflCreationParams.UniqueID = cflParamsId;
             oCfl = oCfLs.Add(oCflCreationParams);
@@ -345,11 +345,11 @@ namespace LandedCosts
                 return;
             }
 
-            bool success = PostLandedCosts(modelsList); 
+            bool success = PostLandedCosts(modelsList);
 
             if (success)
             {
-                Application.SBO_Application.StatusBar.SetSystemMessage("წარმატება", BoMessageTime.bmt_Short, BoStatusBarMessageType.smt_Success);
+                Application.SBO_Application.MessageBox("წარმატება");
                 if (DiManager.Company.InTransaction)
                 {
                     DiManager.Company.EndTransaction(BoWfTransOpt.wf_Commit);
@@ -370,6 +370,15 @@ namespace LandedCosts
                 Documents invoice = (Documents)DiManager.Company.GetBusinessObject(BoObjectTypes.oPurchaseInvoices);
                 invoice.GetByKey(model.InvoiceDocEntry);
                 invoice.OpenForLandedCosts = BoYesNoEnum.tYES;
+                try
+                {
+                    invoice.JournalMemo = "";
+                    invoice.JournalMemo = invoice.JournalMemo + $"D: { model.Number}";
+                }
+                catch (Exception e)
+                {
+                }
+
                 var res = invoice.Update();
 
                 landedCost.Series = 23;
@@ -389,23 +398,60 @@ namespace LandedCosts
 
                 for (int i = 0; i < invoice.Lines.Count; i++)
                 {
+
+                    invoice.Lines.SetCurrentLine(i);
+                    var lineNum = invoice.Lines.LineNum;
+
                     LandedCost_ItemLine oLandedCostItemLine = landedCost.LandedCost_ItemLines.Add();
                     oLandedCostItemLine.BaseDocumentType = LandedCostBaseDocumentTypeEnum.asPurchaseInvoice;
                     oLandedCostItemLine.BaseEntry = model.InvoiceDocEntry;
-                    oLandedCostItemLine.BaseLine = i;
+                    oLandedCostItemLine.BaseLine = lineNum;
                 }
 
+
+                Recordset recSet =
+                    (Recordset)DiManager.Company.GetBusinessObject(BoObjectTypes
+                        .BoRecordset);
+
+                recSet.DoQuery(DiManager.QueryHanaTransalte($"SELECT Rate FROM OVTG WHERE Code = N'{model.Rows[0].VatGroup}'"));
+
+                double vatPercent = -1;
+
+                try
+                {
+                    vatPercent = double.Parse(recSet.Fields.Item("Rate").Value.ToString(), CultureInfo.InvariantCulture);
+                }
+                catch (Exception e)
+                {
+                    Application.SBO_Application.SetStatusBarMessage(e.Message,
+                        BoMessageTime.bmt_Short, true);
+                }
 
 
                 LandedCost_CostLine costLine = landedCost.LandedCost_CostLines.Add();
                 costLine.LandedCostCode = model.Rows[0].LandedCostCode;
+
                 if (landedCost.DocumentCurrency != "GEL")
                 {
-                    costLine.AmountFC = model.Rows[0].Price;
+                    if (vatPercent == 18)
+                    {
+                        costLine.AmountFC = Math.Round(model.Rows[0].Price / 1.18, 2);
+                    }
+                    else
+                    {
+                        costLine.AmountFC = model.Rows[0].Price;
+                    }
                 }
                 else
                 {
-                    costLine.amount = model.Rows[0].Price;
+                    if (vatPercent == 18)
+                    {
+                        costLine.amount = Math.Round(model.Rows[0].Price / 1.18, 2);
+                    }
+                    else
+                    {
+                        costLine.amount = Math.Round(model.Rows[0].Price, 2);
+                    }
                 }
 
                 landedCost.Broker = model.Rows[0].Broker;
@@ -416,8 +462,18 @@ namespace LandedCosts
                     landedCost.PostingDate = model.PostingDate;
                     LandedCostParams landedCostParams = svrLandedCost.AddLandedCost(landedCost);
                     landedCostParams.LandedCostNumber = landedCostParams.LandedCostNumber;
-                    var addedLandedCost = svrLandedCost.GetLandedCost(landedCostParams); 
-                    bool added = CreateInvoiceFromLandedCost(addedLandedCost, model); 
+                    var addedLandedCost = svrLandedCost.GetLandedCost(landedCostParams);
+                    bool added = CreateInvoiceFromLandedCost(addedLandedCost, model);
+
+                    if (!added)
+                    {
+                        if (DiManager.Company.InTransaction)
+                        {
+                            DiManager.Company.EndTransaction(BoWfTransOpt.wf_RollBack);
+
+                        }
+                        return false;
+                    }
 
                 }
                 catch (Exception e)
@@ -426,7 +482,7 @@ namespace LandedCosts
                     {
                         DiManager.Company.EndTransaction(BoWfTransOpt.wf_RollBack);
                     }
-                    Application.SBO_Application.StatusBar.SetSystemMessage(e.Message, BoMessageTime.bmt_Short);
+                    Application.SBO_Application.StatusBar.SetSystemMessage("Landed Cost " + e.Message, BoMessageTime.bmt_Short);
                     return false;
                 }
             }
@@ -443,7 +499,8 @@ namespace LandedCosts
 
             invoice.DocCurrency = model.Rows[0].Currency;
             invoice.DocRate = model.Rows[0].Rate;
-            invoice.Comments = $"Landed Cost : {addedLandedCost.DocEntry} Invoice(s) : {model.Comment} Declaration : {model.Number}";
+            invoice.Comments = $"Landed Cost : {addedLandedCost.DocEntry} Invoice(s) : {model.Comment} ";
+            invoice.JournalMemo = $"Declaration : {model.Number}";
 
             var costLine = addedLandedCost.LandedCost_CostLines.Item(0);
             var landedCostCode = costLine.LandedCostCode;
@@ -458,19 +515,23 @@ namespace LandedCosts
 
             recSet.DoQuery(DiManager.QueryHanaTransalte($"SELECT BplId FROM JDT1 WHERE transId =  '{jdtCode}'"));
             int branch = int.Parse(recSet.Fields.Item("BplId").Value.ToString());
-            invoice.BPL_IDAssignedToInvoice = branch; 
+            invoice.BPL_IDAssignedToInvoice = branch;
 
             //Invoice Lines
             invoice.Lines.SetCurrentLine(0);
             invoice.Lines.ItemDescription = landedCostName;
             invoice.Lines.VatGroup = model.Rows[0].VatGroup;
             invoice.Lines.AccountCode = landedCostAccount;
-            invoice.Lines.LineTotal = model.Rows[0].Currency == "GEL" ? costLine.amount : costLine.AmountFC;
+            invoice.Lines.PriceAfterVAT =  model.Rows[0].Price;
 
             int res = invoice.Add();
-            Application.SBO_Application.SetStatusBarMessage(DiManager.Company.GetLastErrorDescription(), BoMessageTime.bmt_Short,
+            if (res == 0)
+            {
+                return true;
+            }
+            Application.SBO_Application.SetStatusBarMessage("Invoice " + DiManager.Company.GetLastErrorDescription(), BoMessageTime.bmt_Short,
                 true);
-            return res == 0;
+            return false;
         }
 
         private EditText EditText4;
@@ -481,11 +542,22 @@ namespace LandedCosts
             Application.SBO_Application.ActivateMenuItem("1540");
             if (Application.SBO_Application.Forms.ActiveForm.Type != 392) return;
             Form journalEntry = Application.SBO_Application.Forms.ActiveForm;
-            ((EditText) journalEntry.Items.Item("6").Specific).Value = EditText2.Value;
-            ((EditText) journalEntry.Items.Item("102").Specific).Value = EditText2.Value;
-            ((EditText) journalEntry.Items.Item("97").Specific).Value = EditText2.Value;
-            ((EditText) journalEntry.Items.Item("1000").Specific).Value = EditText2.Value;
-        } 
- 
+            try
+            {
+                ((ComboBox)journalEntry.Items.Item("9").Specific).Select("01");
+            }
+            catch (Exception)
+            {
+                Application.SBO_Application.SetStatusBarMessage("ტრანზაქციის კოდი არ არსებობს",
+                    BoMessageTime.bmt_Short, true);
+            }
+            ((EditText)journalEntry.Items.Item("6").Specific).Value = EditText2.Value;
+            ((EditText)journalEntry.Items.Item("102").Specific).Value = EditText2.Value;
+            ((EditText)journalEntry.Items.Item("97").Specific).Value = EditText2.Value;
+            ((EditText)journalEntry.Items.Item("1000").Specific).Value = EditText2.Value;
+            ((EditText)journalEntry.Items.Item("10").Specific).Value = EditText3.Value;
+            ((EditText)journalEntry.Items.Item("7").Specific).Value = $"Declaration : {EditText3.Value}";
+        }
+
     }
 }
