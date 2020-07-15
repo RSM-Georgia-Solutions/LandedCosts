@@ -68,7 +68,7 @@ namespace LandedCosts.Forms
                 return;
             }
             var z = selectedRow.Item(0, BoOrderType.ot_RowOrder);
-         
+
             _landed.AfterChooseFromList(Grid0.DataTable.GetValue("BP Code", z).ToString(), Grid0.DataTable.GetValue("BP Name", z).ToString());
             SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm.Close();
         }

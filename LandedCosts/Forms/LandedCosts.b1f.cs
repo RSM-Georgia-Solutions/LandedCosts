@@ -140,7 +140,7 @@ namespace LandedCosts
             {
                 Matrix bpMatrix = (Matrix)listOfBps.Items.Item("7").Specific;
                 int selectedRow = bpMatrix.GetNextSelectedRow();
-                _cardCode = ((EditText)bpMatrix.Columns.Item(1).Cells.Item(selectedRow).Specific).Value;
+                _cardCode = ((EditText)bpMatrix.Columns.Item("CardCode").Cells.Item(selectedRow).Specific).Value;
             }
 
             if (listOfBps.Title == "Landed Costs")
@@ -184,7 +184,7 @@ namespace LandedCosts
                 int selectedRow = bpMatrix.GetNextSelectedRow();
                 try
                 {
-                    _invoiceDocEntry = ((EditText)bpMatrix.Columns.Item(1).Cells.Item(selectedRow).Specific).Value;
+                    _invoiceDocEntry = ((EditText)bpMatrix.Columns.Item("DocEntry").Cells.Item(selectedRow).Specific).Value;
                 }
                 catch (Exception e)
                 {
